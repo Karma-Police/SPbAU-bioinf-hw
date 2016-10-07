@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdio>
+#include <cstdlib>
 #include <string>
 #include <cassert>
 
@@ -9,10 +10,13 @@ typedef long long ll;
 
 const ll MAX_STRING_LENGTH = 1e4;
 const ll INF = 1e8;
-const ll MATCH_SCORE = -2;
-const ll MISMATCH_PENALTY = 2;
 const ll GAP_OPEN_PENALTY = 10;
 const ll GAP_EXTENSION_PENALTY = 1;
+
+const ll SCORING_MATRIX[4][4] = {{-2, 2, 2, 2},
+                                 { 2,-2, 2, 2},
+                                 { 2, 2,-2, 2},
+                                 { 2, 2, 2,-2}};
 
 struct history_record {
     int pos1;
@@ -43,22 +47,41 @@ void initialize(int n, int m) {
     score[0][0] = 0;
 }
 
+int get_char_id(char c) {
+    switch(c) {
+        case 'A':
+            return 0;
+        case 'C':
+            return 1;
+        case 'G':
+            return 2;
+        case 'T':
+            return 3;
+        default:
+            cerr << "Error: expected {A, C, G, T}* string!";
+            exit(-1);
+    }
+}
+
+ll get_distance(char c1, char c2) {
+    int pos1 = get_char_id(c1), 
+        pos2 = get_char_id(c2);
+    return SCORING_MATRIX[pos1][pos2];
+}
+
 void calculate_score(const string & s1, const string & s2) {
     int n = s1.length();
     int m = s2.length();
     initialize(n, m);
     
-    for (int i = 0; i <= n; i++) {
-        for (int j = 0; j <= m; j++) {
-            if (i && j && s1[i - 1] == s2[j - 1] && score[i - 1][j - 1] + MATCH_SCORE < score[i][j]) {
-                score[i][j] = score[i - 1][j - 1] + MATCH_SCORE;
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            int cur_score_bonus = get_distance(s1[i - 1], s2[j - 1]);
+            if (score[i - 1][j - 1] + cur_score_bonus < score[i][j]) {
+                score[i][j] = score[i - 1][j - 1] + cur_score_bonus;
                 path[i][j] = history_record(i - 1, j - 1, false);
             }
-            if (i && j && score[i - 1][j - 1] + MISMATCH_PENALTY < score[i][j]) {
-                score[i][j] = score[i - 1][j - 1] + MISMATCH_PENALTY;
-                path[i][j] = history_record(i - 1, j - 1, false);
-            }
-            int cur_score_bonus = GAP_OPEN_PENALTY;
+            cur_score_bonus = GAP_OPEN_PENALTY;
             for (int k = i; i && k <= n; k++) {
                 if (score[k][j] > score[i - 1][j] + cur_score_bonus) {
                     score[k][j] = score[i - 1][j] + cur_score_bonus;
