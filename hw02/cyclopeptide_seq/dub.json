@@ -1,0 +1,9 @@
+{
+	"name": "cyclopeptide_seq",
+	"authors": [
+		"Michael"
+	],
+	"description": "A Cyclopeptide sequencing D Simple implementation of cyclopeptide sequencing with scores and cpectral convolution",
+	"copyright": "Copyright © 2016, Michael",
+	"license": "MIT"
+}
