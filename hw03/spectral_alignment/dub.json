@@ -1,0 +1,9 @@
+{
+	"name": "spectral_alignment",
+	"authors": [
+		"Michael"
+	],
+	"description": "A spectral alignment for given 2 spectra D",
+	"copyright": "Copyright © 2017, Michael",
+	"license": "MIT"
+}
