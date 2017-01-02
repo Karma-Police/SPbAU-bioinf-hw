@@ -1,0 +1,9 @@
+{
+	"name": "spectral_graph_construction",
+	"authors": [
+		"Michael"
+	],
+	"description": "A spectral graph construction D for given ion types and spectrum",
+	"copyright": "Copyright © 2016, Michael",
+	"license": "MIT"
+}
