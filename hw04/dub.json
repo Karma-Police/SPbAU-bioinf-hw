@@ -1,0 +1,9 @@
+{
+	"name": "de_bruijn_graph",
+	"authors": [
+		"Michael"
+	],
+	"description": "A creating a De Bruijn graph fro given fasta file",
+	"copyright": "Copyright © 2017, Michael",
+	"license": "MIT"
+}
