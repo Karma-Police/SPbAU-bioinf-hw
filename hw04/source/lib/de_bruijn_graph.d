@@ -2,6 +2,7 @@ module lib.de_breijn_graph;
 
 import std.stdio;
 import std.string;
+import std.conv;
 import std.typecons;
 import std.algorithm.mutation;
 
@@ -21,7 +22,7 @@ public class DBGraph {
         this.notCompressed = true;
     }
 
-    public ulong size() {
+    public ulong size() const {
         return nodes.length;
     }
 
@@ -32,10 +33,28 @@ public class DBGraph {
         addReadToGraph(compRead);
     }
 
-    public void printNodes() {
+    public void printNodes() const {
         foreach (node; nodes) {
             stderr.writeln(node.kmer);
         }
+    }
+
+    public void saveToGvFile(string path) const {
+        File file = File(path, "w");
+        file.writeln("digraph mygraph {");
+        for (int i = 0; i < nodes.length; i++) {
+            auto curNode = nodes[i];
+            for (int c = 0; c < 4; c++) {
+                if (curNode.edge[c].length) {
+                    string line = "\t" ~ to!string(i) ~ " -> ";
+                    ulong nxtNode = nodepos[(curNode.kmer ~ curNode.edge[c])[$ - ksize .. $]];
+                    line ~= to!string(nxtNode) ~ " [label=\"" ~ to!string(curNode.coverCnt[c] * 1.0 / curNode.edge[c].length) ~ "\"];";
+                    file.writeln(line);
+                }
+            }
+        }
+        file.writeln("}");
+        file.close();
     }
 
     public void compress() {
@@ -49,6 +68,7 @@ public class DBGraph {
             int nxtcnt = 0;
             ulong nxtPos = 0;
             char[] edge;
+            uint edgecnt;
             for (int c = 0; c < 4; c++) {
                 if (cur.edge[c].length) {
                     assert(cur.kmer.length == ksize);
@@ -57,6 +77,7 @@ public class DBGraph {
                     nxtPos = nodepos[nxtkmer];
                     nxt = nodes[nxtPos];
                     edge = cur.edge[c];
+                    edgecnt = cur.coverCnt[c];
                     nxtcnt += 1;
                 }
             }
@@ -66,6 +87,7 @@ public class DBGraph {
                         continue;
                     }
                     parNode.node.edge[acidCode(parNode.nuc)] ~= edge;
+                    parNode.node.coverCnt[acidCode(parNode.nuc)] += edgecnt;
                     nxt.parNodes ~= parNode;
                     used[parNode.node.kmer] = curtime;
                 }
